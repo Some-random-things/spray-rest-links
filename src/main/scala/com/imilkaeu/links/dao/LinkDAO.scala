@@ -19,7 +19,6 @@ class LinkDAO extends Configuration with SLF4JLogging {
     user = dbUser, password = dbPassword, driver = "com.mysql.jdbc.Driver")
 
   def linksSearch(qr: String): Either[Failure, List[Link]] = {
-
     try {
       db.withSession {
         log.debug("Querying: %s".format(qr + "%"))
