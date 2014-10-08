@@ -1,4 +1,4 @@
-package com.imilkaeu.links.dao
+package com.imilkaeu.links.database
 
 import akka.event.slf4j.SLF4JLogging
 import java.sql._
@@ -18,19 +18,14 @@ class LinkDAO extends Configuration with SLF4JLogging {
   private val db = Database.forURL(url = "jdbc:mysql://%s:%d/%s?characterEncoding=utf-8".format(dbHost, dbPort, dbName),
     user = dbUser, password = dbPassword, driver = "com.mysql.jdbc.Driver")
 
-  def linksSearch(qr: String): Either[Failure, List[Link]] = {
-    try {
-      db.withSession {
-        log.debug("Querying: %s".format(qr + "%"))
-        val query = for {
-          link <- Links if link.wordLeft like qr + "%"
-        } yield link
+  def linksSearch(qr: String): List[Link] = {
+    db.withSession {
+      log.debug("Querying: %s".format(qr + "%"))
+      val query = for {
+        link <- Links if link.wordLeft like qr + "%"
+      } yield link
 
-        Right(query.run.toList)
-      }
-    } catch {
-      case e: SQLException =>
-        Left(databaseError(e))
+      query.take(100).run.toList
     }
   }
 

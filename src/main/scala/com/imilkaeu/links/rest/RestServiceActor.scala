@@ -2,15 +2,13 @@ package com.imilkaeu.links.rest
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.imilkaeu.links.dao.LinkDAO
-import com.imilkaeu.links.domain._
+import com.imilkaeu.links.database.{DatabaseRequester, LinkDAO}
 import java.text.{ParseException, SimpleDateFormat}
 import java.util.Date
 import net.liftweb.json.Serialization._
 import net.liftweb.json.{DateFormat, Formats}
 import scala.Some
 import spray.http._
-import spray.httpx.unmarshalling._
 import spray.routing._
 
 /**
@@ -28,7 +26,8 @@ class RestServiceActor extends Actor with RestService {
  */
 trait RestService extends HttpService with SLF4JLogging {
 
-  val linkService = new LinkDAO
+  val databaseRequester = new DatabaseRequester(actorRefFactory)
+  val linksDao = new LinkDAO
 
   implicit val executionContext = actorRefFactory.dispatcher
 
@@ -57,14 +56,14 @@ trait RestService extends HttpService with SLF4JLogging {
   }
 
   val rest = respondWithMediaType(MediaTypes.`application/json`) {
-    path("links" / "count") {
+    path("api" / "links" / "count") {
       get {
         parameter('query) { (query) =>
           ctx: RequestContext =>
-            handleRequest(ctx) {
-              log.debug("Retrieving links starting with %s".format(query))
-              linkService.linksSearch(query)
-            }
+            //handleRequest(ctx) {
+            log.debug("Retrieving links starting with %s".format(query))
+            ctx.complete(databaseRequester.linksCountRequest(query))
+            //}
         }
       }
     }
@@ -77,7 +76,7 @@ trait RestService extends HttpService with SLF4JLogging {
    * @param successCode HTTP Status code for success
    * @param action      action to perform
    */
-  protected def handleRequest(ctx: RequestContext, successCode: StatusCode = StatusCodes.OK)(action: => Either[Failure, _]) {
+  /*protected def handleRequest(ctx: RequestContext, successCode: StatusCode = StatusCodes.OK)(action: => Future[Either[Failure, _]]) {
     action match {
       case Right(result: Object) =>
         ctx.complete(successCode, write(result))
@@ -86,5 +85,5 @@ trait RestService extends HttpService with SLF4JLogging {
       case _ =>
         ctx.complete(StatusCodes.InternalServerError)
     }
-  }
+  }*/
 }
