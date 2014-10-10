@@ -56,34 +56,20 @@ trait RestService extends HttpService with SLF4JLogging {
   }
 
   val rest = respondWithMediaType(MediaTypes.`application/json`) {
-    path("api" / "links" / "count") {
-      get {
-        parameter('query) { (query) =>
-          ctx: RequestContext =>
-            //handleRequest(ctx) {
-            log.debug("Retrieving links starting with %s".format(query))
-            ctx.complete(databaseRequester.linksCountRequest(query))
-            //}
-        }
+    pathPrefix("api") {
+      pathPrefix("links") {
+        linksApi
       }
     }
   }
 
-  /**
-   * Handles an incoming request and create valid response for it.
-   *
-   * @param ctx         request context
-   * @param successCode HTTP Status code for success
-   * @param action      action to perform
-   */
-  /*protected def handleRequest(ctx: RequestContext, successCode: StatusCode = StatusCodes.OK)(action: => Future[Either[Failure, _]]) {
-    action match {
-      case Right(result: Object) =>
-        ctx.complete(successCode, write(result))
-      case Left(error: Failure) =>
-        ctx.complete(error.getStatusCode, net.liftweb.json.Serialization.write(Map("error" -> error.message)))
-      case _ =>
-        ctx.complete(StatusCodes.InternalServerError)
+  def linksApi = {
+    path("count") {
+      get {
+        parameter('query) { (query) =>
+          complete(databaseRequester.linksCountRequest(query))
+        }
+      }
     }
-  }*/
+  }
 }
