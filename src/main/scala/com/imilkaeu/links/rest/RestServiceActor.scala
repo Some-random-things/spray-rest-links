@@ -57,18 +57,16 @@ trait RestService extends HttpService with SLF4JLogging {
 
   val rest = respondWithMediaType(MediaTypes.`application/json`) {
     pathPrefix("api") {
-      pathPrefix("links") {
+      path("links") {
         linksApi
       }
     }
   }
 
   def linksApi = {
-    path("count") {
-      get {
-        parameter('query) { (query) =>
-          complete(databaseRequester.linksCountRequest(query))
-        }
+    get {
+      parameter('query) { (query) =>
+        complete(databaseRequester.linksRequest(query))
       }
     }
   }

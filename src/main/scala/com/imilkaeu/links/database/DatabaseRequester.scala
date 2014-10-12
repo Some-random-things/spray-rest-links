@@ -9,7 +9,10 @@ import net.liftweb.json.{DateFormat, Formats}
 import java.text.SimpleDateFormat
 import java.util.Date
 
+case class LinksResponse(query: String, data: List[Link])
+
 class DatabaseRequester(system: ActorRefFactory) {
+
   import system.dispatcher
   val linkService = new LinkDAO
 
@@ -27,7 +30,7 @@ class DatabaseRequester(system: ActorRefFactory) {
     }
   }
 
-  def linksCountRequest(query: String): Future[String] = Future {
-    write(linkService.linksSearch(query))
+  def linksRequest(query: String): Future[String] = Future {
+    write(LinksResponse(query, linkService.linksSearch(query)))
   }
 }

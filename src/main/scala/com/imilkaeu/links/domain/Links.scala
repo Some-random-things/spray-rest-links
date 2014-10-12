@@ -3,7 +3,6 @@ package com.imilkaeu.links.domain
 import scala.slick.driver.MySQLDriver.simple._
 
 case class Link(wordLeft: Word, wordRight: Word, count: Int)
-
 case class Word(word: String, partOfSpeechLong: String, partOfSpeechShort: String)
 
 /**
