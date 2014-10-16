@@ -18,11 +18,14 @@ class LinkDAO extends Configuration with SLF4JLogging {
   private val db = Database.forURL(url = "jdbc:mysql://%s:%d/%s?characterEncoding=utf-8".format(dbHost, dbPort, dbName),
     user = dbUser, password = dbPassword, driver = "com.mysql.jdbc.Driver")
 
-  def linksSearch(qr: String): List[Link] = {
+  def linksSearch(qr: String, leftProperties: List[String], rightProperties: List[String]): List[Link] = {
     db.withSession {
       log.debug("Querying: %s".format(qr + "%"))
       val query = for {
-        link <- Links if link.wordLeft like qr + "%"
+        link <- Links
+        if link.wordLeft like qr + "%"
+        if link.partOfSpeechShortLeft inSet leftProperties
+        if link.partOfSpeechShortRight inSet rightProperties
       } yield link
 
       query.take(100).run.toList

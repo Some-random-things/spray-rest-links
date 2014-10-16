@@ -65,8 +65,8 @@ trait RestService extends HttpService with SLF4JLogging {
 
   def linksApi = {
     get {
-      parameter('query) { (query) =>
-        complete(databaseRequester.linksRequest(query))
+      parameters('query, 'leftProperties, 'rightProperties) { (query, leftProperties, rightProperties) =>
+        complete(databaseRequester.linksRequest(query, leftProperties.toString.split(",").toList, rightProperties.toString.split(",").toList))
       }
     }
   }

@@ -30,7 +30,7 @@ class DatabaseRequester(system: ActorRefFactory) {
     }
   }
 
-  def linksRequest(query: String): Future[String] = Future {
-    write(LinksResponse(query, linkService.linksSearch(query)))
+  def linksRequest(query: String, leftProperties: List[String], rightProperties: List[String]): Future[String] = Future {
+    write(LinksResponse(query, linkService.linksSearch(query, leftProperties, rightProperties)))
   }
 }
